@@ -32,25 +32,35 @@ class celery::rabbitmq($user="some_user",
   }
 }
 
-class celery::server($requirements="/tmp/vagrant-puppet/manifests/requirements.txt",
+class celery::server($requirements="/tmp/celery-requirements.txt",
+                     $requirements_template="celery/requirements.txt",
+                     $initd_template="celery/init.d.sh",
+                     $config_template="celery/celeryconfig.py",
+                     $defaults_template="celery/defaults.sh",
                      $broker_user="some_user",
                      $broker_vhost="some_vhost",
                      $broker_password="CHANGEME",
                      $broker_host="localhost",
                      $broker_port="5672") {
+
+  file { $requirements:
+    ensure => "present",
+    content => template($requirements_template),
+  }
+
   pip::install {"celery":
     requirements => $requirements,
-    require => Exec["pip::bootstrapped"],
+    require => [Exec["pip::bootstrapped"], File[$requirements],],
   }
 
   file { "/etc/default/celeryd":
     ensure => "present",
-    content => template("celeryd"),
+    content => template($defaults_template),
   }
 
   file { "/etc/init.d/celeryd":
     ensure => "present",
-    content => template("init.d_celeryd"),
+    content => template($initd_template),
     mode => "0755",
   }
 
@@ -66,7 +76,7 @@ class celery::server($requirements="/tmp/vagrant-puppet/manifests/requirements.t
 
   file { "/var/celery/celeryconfig.py":
     ensure => "present",
-    content => template("celeryconfig.py"),
+    content => template($config_template),
     require => File["/var/celery"],
   }
 
@@ -85,6 +95,8 @@ class celery::server($requirements="/tmp/vagrant-puppet/manifests/requirements.t
     require => [File["/var/celery/celeryconfig.py"],
                 File["/etc/init.d/celeryd"],
                 Exec["pip-celery"],
+                File["/var/log/celery"],
+                File["/var/run/celery"],
                 Class["rabbitmq::service"], ],
   }
 }
