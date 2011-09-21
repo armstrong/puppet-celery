@@ -33,11 +33,11 @@ class celery::rabbitmq($user="some_user",
 }
 
 class celery::server($requirements="/tmp/vagrant-puppet/manifests/requirements.txt",
-                     $user="some_user",
-                     $vhost="some_vhost",
-                     $password="CHANGEME",
-                     $host="localhost",
-                     $port="5672") {
+                     $broker_user="some_user",
+                     $broker_vhost="some_vhost",
+                     $broker_password="CHANGEME",
+                     $broker_host="localhost",
+                     $broker_port="5672") {
   pip::install {"celery":
     requirements => $requirements,
     require => Exec["pip::bootstrapped"],
