@@ -100,3 +100,26 @@ class celery::server($requirements="/tmp/celery-requirements.txt",
                 Class["rabbitmq::service"], ],
   }
 }
+
+class celery::django($requirements="/tmp/celery-django-requirements.txt",
+                     $requirements_template="celery/django-requirements.txt",
+                     $initd_template="celery/init.d.sh",
+                     $config_template="celery/celeryconfig.py",
+                     $defaults_template="celery/defaults.sh",
+                     $broker_user="some_user",
+                     $broker_vhost="some_vhost",
+                     $broker_password="CHANGEME",
+                     $broker_host="localhost",
+                     $broker_port="5672") {
+
+  file { $requirements:
+    ensure => "present",
+    content => template($requirements_template),
+  }
+
+  pip::install {"celery":
+    requirements => $requirements,
+    require => [Exec["pip::bootstrapped"], File[$requirements],],
+  }
+
+}
