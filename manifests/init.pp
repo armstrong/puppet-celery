@@ -4,12 +4,18 @@ class celery::rabbitmq($user="some_user",
                        $vhost="some_vhost",
                        $password="CHANGEME") {
 
-  class { 'rabbitmq::repo::apt':
-    pin    => 900,
-    before => Class['rabbitmq::server']
-  }
 
-  class { 'rabbitmq::server':
+  #class { 'rabbitmq::repo::apt':
+  #  pin    => 900,
+  #  before => Class['rabbitmq::server']
+  #}
+
+  #class { '::rabbitmq':
+  #  delete_guest_user => true,
+  #}
+
+  class { '::rabbitmq':
+    package_apt_pin => 900,
     delete_guest_user => true,
   }
 
