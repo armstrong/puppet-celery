@@ -2,27 +2,16 @@ celery for puppet
 =================
 This installs and configures `Celery`_.
 
-This is a `puppet`_ module for using Python's `pip`_.  Puppet has a
-built-in pip provider, but it's implementation leaves out a few pieces:
-
-* No ability to install from requirements file.
-* No ability to add extra arguments
-* No support for using mirrors or specifying alternate indexes.
-
-This module fixes this.
-
-
 Usage
 -----
 Make sure this module is available by adding this repository's contents
 in a directory called ``celery`` inside your Puppet's ``moduledir``.
-It also requires the `puppet-pip`_ module as well.
+It also requires the `puppet-python`_ module as well.
 
 
 Bootstrapping RabbitMQ
 """"""""""""""""""""""
-If you need to bootstrap RabbitMQ (note that this requires that you have
-`this version`_ of `puppetlabs-rabbitmq`_ to run on RabbitMQ 2.6)::
+If you need to bootstrap RabbitMQ ::
 
     class { "celery::rabbitmq": }
 
@@ -57,6 +46,7 @@ Configuration
 
 
 .. _Celery: http://celeryproject.org/
+.. _puppet-python: https://github.com/stankevich/puppet-python
 .. _distribute: http://packages.python.org/distribute/
 .. _pip: http://www.pip-installer.org/
 .. _puppet: http://puppetlabs.com/

@@ -4,22 +4,16 @@ class celery::rabbitmq($user="some_user",
                        $vhost="some_vhost",
                        $password="CHANGEME") {
 
-
-  #class { 'rabbitmq::repo::apt':
-  #  pin    => 900,
-  #  before => Class['rabbitmq::server']
-  #}
-
-  #class { '::rabbitmq':
-  #  delete_guest_user => true,
-  #}
-
+  # rabbitmq module needs this
+  package {'curl':
+    ensure => present,
+  } ->
   class { '::rabbitmq':
     package_apt_pin => 900,
     delete_guest_user => true,
   }
 
-  rabbitmq_user { "$user":
+  rabbitmq_user { $user:
     admin    => true,
     password => $password,
     provider => 'rabbitmqctl',
@@ -52,11 +46,6 @@ class celery::server($requirements="/tmp/celery-requirements.txt",
   file { $requirements:
     ensure => "present",
     content => template($requirements_template),
-  }
-
-  pip::install {"celery":
-    requirements => $requirements,
-    require => [Exec["pip::bootstrapped"], File[$requirements],],
   }
 
   file { "/etc/default/celeryd":
@@ -96,11 +85,11 @@ class celery::server($requirements="/tmp/celery-requirements.txt",
     owner => "celery",
   }
 
+  python::requirements { $requirements: } ->
   service { "celeryd":
     ensure => "running",
     require => [File["/var/celery/celeryconfig.py"],
                 File["/etc/init.d/celeryd"],
-                Exec["pip-celery"],
                 File["/var/log/celery"],
                 File["/var/run/celery"],
                 Class["rabbitmq::service"], ],
