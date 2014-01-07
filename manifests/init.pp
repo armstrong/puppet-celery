@@ -10,7 +10,8 @@ class celery::rabbitmq($user="some_user",
   } ->
   class { '::rabbitmq':
     package_apt_pin => 900,
-    delete_guest_user => true,
+    # use this for the time being remove once working
+    delete_guest_user => false,
   }
 
   rabbitmq_user { $user:
@@ -32,7 +33,9 @@ class celery::rabbitmq($user="some_user",
   }
 }
 
-class celery::server($requirements="/tmp/celery-requirements.txt",
+class celery::server($vhost="system-wide",
+                     $venvowner="root",
+                     $requirements="/tmp/celery-requirements.txt",
                      $requirements_template="celery/requirements.txt",
                      $initd_template="celery/init.d.sh",
                      $config_template="celery/celeryconfig.py",
@@ -85,36 +88,39 @@ class celery::server($requirements="/tmp/celery-requirements.txt",
     owner => "celery",
   }
 
-  python::requirements { $requirements: } ->
+  python::requirements { $requirements:
+    virtualenv => 'ecoengine.berkeley.edu',
+    owner => 'gitdev'
+  } ->
   service { "celeryd":
+    hasrestart => true,
     ensure => "running",
-    require => [File["/var/celery/celeryconfig.py"],
-                File["/etc/init.d/celeryd"],
+    require => [File["/etc/default/celeryd"],
                 File["/var/log/celery"],
                 File["/var/run/celery"],
                 Class["rabbitmq::service"], ],
   }
 }
 
-class celery::django($requirements="/tmp/celery-django-requirements.txt",
-                     $requirements_template="celery/django-requirements.txt",
-                     $initd_template="celery/init.d.sh",
-                     $config_template="celery/celeryconfig.py",
-                     $defaults_template="celery/defaults.sh",
-                     $broker_user="some_user",
-                     $broker_vhost="some_vhost",
-                     $broker_password="CHANGEME",
-                     $broker_host="localhost",
-                     $broker_port="5672") {
+#class celery::django($requirements="/tmp/celery-django-requirements.txt",
+#                     $requirements_template="celery/django-requirements.txt",
+#                     $initd_template="celery/init.d.sh",
+#                     $config_template="celery/celeryconfig.py",
+#                     $defaults_template="celery/defaults.sh",
+#                     $broker_user="some_user",
+#                     $broker_vhost="some_vhost",
+#                     $broker_password="CHANGEME",
+#                     $broker_host="localhost",
+#                     $broker_port="5672") {
 
-  file { $requirements:
-    ensure => "present",
-    content => template($requirements_template),
-  }
+#  file { $requirements:
+#    ensure => "present",
+#    content => template($requirements_template),
+#  }
 
-  pip::install {"celery":
-    requirements => $requirements,
-    require => [Exec["pip::bootstrapped"], File[$requirements],],
-  }
-
-}
+#  pip::install {"celery":
+#    requirements => $requirements,
+#    require => [Exec["pip::bootstrapped"], File[$requirements],],
+#  }
+#
+#}

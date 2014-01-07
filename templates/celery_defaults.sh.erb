@@ -1,9 +1,9 @@
-
+# changed and simplfied for celery version 3.1 and larger
 
 # Name of nodes to start, here we have a single node
 CELERYD_NODES="w1"
 # or we could have three nodes:
-#CELERYD_NODES="w1 w2 w3"
+# CELERYD_NODES="w1 w2 w3"
 
 # Where to chdir at start.
 CELERYD_CHDIR="/var/www/ecoengine.berkeley.edu"
@@ -11,17 +11,11 @@ CELERYD_CHDIR="/var/www/ecoengine.berkeley.edu"
 # Python interpreter from environment.
 ENV_PYTHON="$CELERYD_CHDIR/env/bin/python"
 
-# How to call "manage.py celeryd_multi"
-CELERYD_MULTI="$ENV_PYTHON $CELERYD_CHDIR/bee/manage.py celeryd_multi"
-
-# How to call "manage.py celeryctl"
-CELERYCTL="$ENV_PYTHON $CELERYD_CHDIR/bee/manage.py celeryctl"
+# Use local env copy of celery
+CELERY_BIN="$CELERYD_CHDIR/env/bin/celery"
 
 # Extra arguments to celeryd
-CELERYD_OPTS="--time-limit=300 --concurrency=8"
-
-# Name of the celery config module.
-CELERY_CONFIG_MODULE="celeryconfig"
+CELERYD_OPTS="--concurrency=8"
 
 # %n will be replaced with the nodename.
 CELERYD_LOG_FILE="/var/log/celery/%n.log"
