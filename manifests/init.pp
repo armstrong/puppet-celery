@@ -33,12 +33,12 @@ class celery::rabbitmq($user="some_user",
   }
 }
 
-class celery::server($vhost="system-wide",
+class celery::server($venv="system-wide",
+                     $django_settings='',
                      $venvowner="root",
                      $requirements="/tmp/celery-requirements.txt",
                      $requirements_template="celery/requirements.txt",
                      $initd_template="celery/init.d.sh",
-                     $config_template="celery/celeryconfig.py",
                      $defaults_template="celery/defaults.sh",
                      $broker_user="some_user",
                      $broker_vhost="some_vhost",
@@ -72,12 +72,6 @@ class celery::server($vhost="system-wide",
     require => User["celery"],
   }
 
-  file { "/var/celery/celeryconfig.py":
-    ensure => "present",
-    content => template($config_template),
-    require => File["/var/celery"],
-  }
-
   file { "/var/log/celery":
     ensure => "directory",
     owner => "celery",
@@ -89,8 +83,9 @@ class celery::server($vhost="system-wide",
   }
 
   python::requirements { $requirements:
-    virtualenv => 'ecoengine.berkeley.edu',
-    owner => 'gitdev'
+    virtualenv => $venv,
+    owner => $venvowner,
+    group => $venvowner,
   } ->
   service { "celeryd":
     hasrestart => true,
@@ -101,26 +96,3 @@ class celery::server($vhost="system-wide",
                 Class["rabbitmq::service"], ],
   }
 }
-
-#class celery::django($requirements="/tmp/celery-django-requirements.txt",
-#                     $requirements_template="celery/django-requirements.txt",
-#                     $initd_template="celery/init.d.sh",
-#                     $config_template="celery/celeryconfig.py",
-#                     $defaults_template="celery/defaults.sh",
-#                     $broker_user="some_user",
-#                     $broker_vhost="some_vhost",
-#                     $broker_password="CHANGEME",
-#                     $broker_host="localhost",
-#                     $broker_port="5672") {
-
-#  file { $requirements:
-#    ensure => "present",
-#    content => template($requirements_template),
-#  }
-
-#  pip::install {"celery":
-#    requirements => $requirements,
-#    require => [Exec["pip::bootstrapped"], File[$requirements],],
-#  }
-#
-#}
