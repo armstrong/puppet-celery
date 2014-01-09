@@ -3,10 +3,9 @@
 # Name of nodes to start, here we have a single node
 CELERYD_NODES="w1"
 # or we could have three nodes:
-# CELERYD_NODES="w1 w2 w3"
 
 # Where to chdir at start.
-CELERYD_CHDIR="<% =venv%>"
+CELERYD_CHDIR="<%= @venv%>"
 
 # Python interpreter from environment.
 ENV_PYTHON="$CELERYD_CHDIR/env/bin/python"
@@ -25,7 +24,6 @@ CELERYD_PID_FILE="/var/run/celery/%n.pid"
 CELERYD_USER="celery"
 CELERYD_GROUP="celery"
 
-<% if django_settings %>
-  # Name of the projects settings module.
-  export DJANGO_SETTINGS_MODULE="<% =django.settings %>"
+<% if @django==true %>
+    export DJANGO_SETTINGS_MODULE="settings"
 <% end %>
