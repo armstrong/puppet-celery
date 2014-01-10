@@ -34,7 +34,8 @@ class celery::rabbitmq($user="some_user",
 }
 
 class celery::server($venv="system-wide",
-                     $django=false,
+                     $django_name="",
+                     $proroot="",
                      $venvowner="root",
                      $requirements="/tmp/celery-requirements.txt",
                      $requirements_template="celery/requirements.txt",

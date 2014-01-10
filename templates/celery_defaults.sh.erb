@@ -5,7 +5,7 @@ CELERYD_NODES="w1"
 # or we could have three nodes:
 
 # Where to chdir at start.
-CELERYD_CHDIR="<%= @venv%>"
+CELERYD_CHDIR="<%= @proroot %>"
 
 # Python interpreter from environment.
 ENV_PYTHON="$CELERYD_CHDIR/env/bin/python"
@@ -24,6 +24,6 @@ CELERYD_PID_FILE="/var/run/celery/%n.pid"
 CELERYD_USER="celery"
 CELERYD_GROUP="celery"
 
-<% if @django==true %>
-    export DJANGO_SETTINGS_MODULE="settings"
+<% if @django_name != '' %>
+    export DJANGO_SETTINGS_MODULE="<%= djang_name %>.settings"
 <% end %>
