@@ -8,10 +8,10 @@ CELERYD_NODES="w1"
 CELERYD_CHDIR="<%= @proroot %>"
 
 # Python interpreter from environment.
-ENV_PYTHON="$CELERYD_CHDIR/env/bin/python"spa
+ENV_PYTHON="<%= @venv %>/bin/python"
 
 # Use local env copy of celery
-CELERY_BIN="$CELERYD_CHDIR/env/bin/celery"
+CELERY_BIN="<%= @venv %>/bin/celery"
 
 # Extra arguments to celeryd
 CELERYD_OPTS="--concurrency=8"
@@ -25,5 +25,5 @@ CELERYD_USER="celery"
 CELERYD_GROUP="celery"
 
 <% if @django_name != '' %>
-    export DJANGO_SETTINGS_MODULE="<%= django_name %>.settings"
+    export DJANGO_SETTINGS_MODULE='settings'
 <% end %>
