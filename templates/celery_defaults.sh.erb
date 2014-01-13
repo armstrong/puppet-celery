@@ -14,7 +14,7 @@ ENV_PYTHON="<%= @venv %>/bin/python"
 CELERY_BIN="<%= @venv %>/bin/celery"
 
 # Extra arguments to celeryd
-CELERYD_OPTS="--concurrency=8"
+CELERYD_OPTS="--concurrency=8<% if @django_name != '' %> -A  <%= @django_name%><% end %>"
 
 # %n will be replaced with the nodename.
 CELERYD_LOG_FILE="/var/log/celery/%n.log"
@@ -23,7 +23,3 @@ CELERYD_PID_FILE="/var/run/celery/%n.pid"
 # Workers should run as an unprivileged user.
 CELERYD_USER="celery"
 CELERYD_GROUP="celery"
-
-<% if @django_name != '' %>
-    export DJANGO_SETTINGS_MODULE='bee.settings'
-<% end %>

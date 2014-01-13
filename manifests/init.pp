@@ -1,5 +1,3 @@
-
-
 class celery::rabbitmq($user="some_user",
                        $vhost="some_vhost",
                        $password="CHANGEME") {
@@ -63,9 +61,9 @@ class celery::server($venv="system-wide",
     mode => "0755",
   }
 
-  user { "celery":
-    ensure => "present",
-  }
+  # user { "celery":
+  #  ensure => "present",
+  #}
 
   file { "/var/celery":
     ensure => "directory",
