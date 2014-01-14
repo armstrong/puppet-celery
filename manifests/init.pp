@@ -32,7 +32,6 @@ class celery::rabbitmq($user="some_user",
 }
 
 class celery::server($venv="system-wide",
-                     $django_name="",
                      $proroot="",
                      $venvowner="root",
                      $requirements="/tmp/celery-requirements.txt",
@@ -61,9 +60,13 @@ class celery::server($venv="system-wide",
     mode => "0755",
   }
 
-  # user { "celery":
-  #  ensure => "present",
-  #}
+  group { "appusers":
+    ensure => "present",
+  } ->
+  user { "celery":
+    ensure => "present",
+    groups => ["appusers"]
+  }
 
   file { "/var/celery":
     ensure => "directory",
