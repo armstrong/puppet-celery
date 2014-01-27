@@ -1,0 +1,25 @@
+# changed and simplfied for celery version 3.1 and larger
+
+# Name of nodes to start, here we have a single node
+CELERYD_NODES="w1"
+# or we could have three nodes:
+
+# Where to chdir at start.
+CELERYD_CHDIR="<%= @proroot %>"
+
+# Python interpreter from environment.
+ENV_PYTHON="<%= @venv %>/bin/python"
+
+# Use local env copy of celery
+CELERY_BIN="<%= @venv %>/bin/celery"
+
+# Extra arguments to celeryd
+CELERYD_OPTS="--concurrency=8" #<% if @django_name != '' %> -A  <%= @django_name%><% end %>"
+
+# %n will be replaced with the nodename.
+CELERYD_LOG_FILE="/var/log/celery/%n.log"
+CELERYD_PID_FILE="/var/run/celery/%n.pid"
+
+# Workers should run as an unprivileged user.
+CELERYD_USER="celery"
+CELERYD_GROUP="celery"

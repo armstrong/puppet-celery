@@ -1,19 +1,18 @@
-
-
 class celery::rabbitmq($user="some_user",
                        $vhost="some_vhost",
                        $password="CHANGEME") {
 
-  class { 'rabbitmq::repo::apt':
-    pin    => 900,
-    before => Class['rabbitmq::server']
+  # rabbitmq module needs this
+  package {'curl':
+    ensure => present,
+  } ->
+  class { '::rabbitmq':
+    package_apt_pin => 900,
+    # use this for the time being remove once working
+    delete_guest_user => false,
   }
 
-  class { 'rabbitmq::server':
-    delete_guest_user => true,
-  }
-
-  rabbitmq_user { "$user":
+  rabbitmq_user { $user:
     admin    => true,
     password => $password,
     provider => 'rabbitmqctl',
@@ -32,25 +31,24 @@ class celery::rabbitmq($user="some_user",
   }
 }
 
-class celery::server($requirements="/tmp/celery-requirements.txt",
+class celery::server($venv="system-wide",
+                     $proroot="",
+                     $venvowner="root",
+                     $requirements="/tmp/celery-requirements.txt",
                      $requirements_template="celery/requirements.txt",
                      $initd_template="celery/init.d.sh",
-                     $config_template="celery/celeryconfig.py",
-                     $defaults_template="celery/defaults.sh",
+                     $defaults_template="celery/celery_defaults.sh.erb",
                      $broker_user="some_user",
                      $broker_vhost="some_vhost",
                      $broker_password="CHANGEME",
                      $broker_host="localhost",
-                     $broker_port="5672") {
+                     $broker_port="5672",
+		     $user="celery",
+		     $usergroup="celery") {
 
   file { $requirements:
     ensure => "present",
     content => template($requirements_template),
-  }
-
-  pip::install {"celery":
-    requirements => $requirements,
-    require => [Exec["pip::bootstrapped"], File[$requirements],],
   }
 
   file { "/etc/default/celeryd":
@@ -64,20 +62,15 @@ class celery::server($requirements="/tmp/celery-requirements.txt",
     mode => "0755",
   }
 
-  user { "celery":
+  user { $user:
     ensure => "present",
-  }
+    groups => $usergroup
+  } ->
 
   file { "/var/celery":
     ensure => "directory",
     owner => "celery",
     require => User["celery"],
-  }
-
-  file { "/var/celery/celeryconfig.py":
-    ensure => "present",
-    content => template($config_template),
-    require => File["/var/celery"],
   }
 
   file { "/var/log/celery":
@@ -90,36 +83,18 @@ class celery::server($requirements="/tmp/celery-requirements.txt",
     owner => "celery",
   }
 
+  python::requirements { $requirements:
+    virtualenv => $venv,
+    owner => $venvowner,
+    group => $venvowner,
+  } ->
   service { "celeryd":
+    hasrestart => true,
     ensure => "running",
-    require => [File["/var/celery/celeryconfig.py"],
-                File["/etc/init.d/celeryd"],
-                Exec["pip-celery"],
+    require => [File["/etc/init.d/celeryd"],
+                File["/etc/default/celeryd"],
                 File["/var/log/celery"],
                 File["/var/run/celery"],
                 Class["rabbitmq::service"], ],
   }
-}
-
-class celery::django($requirements="/tmp/celery-django-requirements.txt",
-                     $requirements_template="celery/django-requirements.txt",
-                     $initd_template="celery/init.d.sh",
-                     $config_template="celery/celeryconfig.py",
-                     $defaults_template="celery/defaults.sh",
-                     $broker_user="some_user",
-                     $broker_vhost="some_vhost",
-                     $broker_password="CHANGEME",
-                     $broker_host="localhost",
-                     $broker_port="5672") {
-
-  file { $requirements:
-    ensure => "present",
-    content => template($requirements_template),
-  }
-
-  pip::install {"celery":
-    requirements => $requirements,
-    require => [Exec["pip::bootstrapped"], File[$requirements],],
-  }
-
 }
