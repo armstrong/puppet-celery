@@ -42,7 +42,9 @@ class celery::server($venv="system-wide",
                      $broker_vhost="some_vhost",
                      $broker_password="CHANGEME",
                      $broker_host="localhost",
-                     $broker_port="5672") {
+                     $broker_port="5672",
+		     $user="celery",
+		     $usergroup="celery") {
 
   file { $requirements:
     ensure => "present",
@@ -60,12 +62,9 @@ class celery::server($venv="system-wide",
     mode => "0755",
   }
 
-  group { "appusers":
+  user { $users:
     ensure => "present",
-  } ->
-  user { "celery":
-    ensure => "present",
-    groups => ["appusers"]
+    groups => $usergroups
   }
 
   file { "/var/celery":
