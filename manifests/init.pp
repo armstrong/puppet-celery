@@ -64,8 +64,8 @@ class celery::server($venv="system-wide",
 
   user { $users:
     ensure => "present",
-    groups => $usergroups
-  }
+    groups => $usergroup
+  } ->
 
   file { "/var/celery":
     ensure => "directory",
