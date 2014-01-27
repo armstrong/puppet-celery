@@ -62,7 +62,7 @@ class celery::server($venv="system-wide",
     mode => "0755",
   }
 
-  user { $users:
+  user { $user:
     ensure => "present",
     groups => $usergroup
   } ->
